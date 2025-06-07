@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hourly Work Time Tracker</title>
+    
+    <!-- Link to the Manifest file -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Theme color for the browser bar -->
+    <meta name="theme-color" content="#4f46e5">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ... your styles ... */
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Time Tracker</h1>
+            <p class="text-gray-600 mt-2">Track your work hours and calculate your earnings seamlessly.</p>
+        </header>
+
+        <!-- Main Control Panel -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+             <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-3">Live Tracker</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                <!-- Work Name Input -->
+                <div class="md:col-span-1">
+                    <label for="workName" class="block text-sm font-medium text-gray-700 mb-1">Name of Work</label>
+                    <input type="text" id="workName" placeholder="e.g., Project A" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+                <!-- Action Buttons -->
+                <div class="md:col-span-1 flex space-x-4">
+                    <button id="startButton" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Start</span>
+                    </button>
+                    <button id="endButton" class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out flex items-center justify-center space-x-2" disabled>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 100-2H9V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                        <span>End</span>
+                    </button>
+                </div>
+                 <!-- Live Timer -->
+                <div id="liveTimer" class="md:col-span-1 text-center md:text-right text-2xl font-semibold text-indigo-600 timer-display hidden">
+                    00:00:00
+                </div>
+            </div>
+        </div>
+        
+        <!-- Manual Entry Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-3">Add a Past Entry</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label for="manualWorkName" class="block text-sm font-medium text-gray-700 mb-1">Name of Work</label>
+                    <input type="text" id="manualWorkName" placeholder="e.g., Past Project" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="manualDate" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input type="date" id="manualDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="manualStartTime" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                    <input type="time" id="manualStartTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="manualEndTime" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                    <input type="time" id="manualEndTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+            <div class="mt-6 text-right">
+                <button id="manualSaveButton" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                    Add Entry
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary & Earnings -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-5 text-center">
+                <h3 class="text-sm font-medium text-gray-500">Hourly Rate (€)</h3>
+                <input type="number" id="hourlyRate" value="25" min="0" class="text-2xl font-bold text-gray-900 bg-transparent w-full text-center focus:outline-none">
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-5 text-center">
+                <h3 class="text-sm font-medium text-gray-500">Total Duration</h3>
+                <p id="totalDuration" class="text-2xl font-bold text-gray-900 timer-display">00:00:00</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-5 text-center">
+                <h3 class="text-sm font-medium text-gray-500">Total Earnings</h3>
+                <p id="totalEarnings" class="text-2xl font-bold text-green-600">€0.00</p>
+            </div>
+        </div>
+
+        <!-- Work Log Table -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-800">Work Log</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Date</th>
+                            <th scope="col" class="px-6 py-3">Name of Work</th>
+                            <th scope="col" class="px-6 py-3">Start Time</th>
+                            <th scope="col" class="px-6 py-3">End Time</th>
+                            <th scope="col" class="px-6 py-3">Duration</th>
+                            <th scope="col" class="px-6 py-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody">
+                        <!-- Rows will be injected here by JavaScript -->
+                    </tbody>
+                    <tfoot id="logTableFooter" class="bg-gray-100 font-semibold text-gray-800">
+                        <!-- Footer will be injected here by JavaScript -->
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        
+        <!-- User ID Display -->
+        <div class="text-center mt-6">
+            <p class="text-xs text-gray-500">Your User ID: <span id="userId" class="font-mono">loading...</span></p>
+        </div>
+    </div>
+
+    <!-- Custom Modal for Messages -->
+    <div id="messageModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mt-2" id="modalTitle">Alert</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500" id="modalMessage"></p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="closeModalButton" class="px-4 py-2 bg-indigo-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                     <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mt-2" id="confirmTitle">Delete Entry</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500" id="confirmMessage">Are you sure you want to delete this log? This action cannot be undone.</p>
+                </div>
+                <div class="flex items-center justify-center px-4 py-3 space-x-4">
+                    <button id="confirmCancelButton" class="px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                        Cancel
+                    </button>
+                    <button id="confirmOkButton" class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- DOM Elements ---
+        const startButton = document.getElementById('startButton');
+        const endButton = document.getElementById('endButton');
+        const workNameInput = document.getElementById('workName');
+        const hourlyRateInput = document.getElementById('hourlyRate');
+        const liveTimerEl = document.getElementById('liveTimer');
+        const logTableBody = document.getElementById('logTableBody');
+        const logTableFooter = document.getElementById('logTableFooter');
+        const totalDurationEl = document.getElementById('totalDuration');
+        const totalEarningsEl = document.getElementById('totalEarnings');
+        const userIdEl = document.getElementById('userId');
+        
+        // Manual Entry Elements
+        const manualWorkNameInput = document.getElementById('manualWorkName');
+        const manualDateInput = document.getElementById('manualDate');
+        const manualStartTimeInput = document.getElementById('manualStartTime');
+        const manualEndTimeInput = document.getElementById('manualEndTime');
+        const manualSaveButton = document.getElementById('manualSaveButton');
+        
+        // Modal Elements
+        const modal = document.getElementById('messageModal');
+        const modalMessageEl = document.getElementById('modalMessage');
+        const closeModalButton = document.getElementById('closeModalButton');
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmTitleEl = document.getElementById('confirmTitle');
+        const confirmMessageEl = document.getElementById('confirmMessage');
+        const confirmOkButton = document.getElementById('confirmOkButton');
+        const confirmCancelButton = document.getElementById('confirmCancelButton');
+        
+        // --- State Variables ---
+        let db, auth;
+        let userId = null;
+        let appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        let currentLogId = null;
+        let liveTimerInterval = null;
+        let logs = [];
+        let confirmResolver = null;
+
+        // --- Firebase Config and Initialization ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        
+        async function initializeFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setupAuthListener();
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showMessage("Could not connect to the database. Please refresh the page.");
+            }
+        }
+        
+        // --- Authentication ---
+        function setupAuthListener() {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    userIdEl.textContent = userId;
+                    console.log("User signed in:", userId);
+                    loadLogs();
+                } else {
+                    console.log("No user signed in, attempting sign-in.");
+                    try {
+                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                         } else {
+                            await signInAnonymously(auth);
+                         }
+                    } catch (error) {
+                        console.error("Sign-in failed:", error);
+                        showMessage("Authentication failed. Your data cannot be saved.");
+                    }
+                }
+            });
+        }
+
+        // --- Firestore Data Handling ---
+        function loadLogs() {
+            if (!userId) return;
+            const logsCollection = collection(db, `artifacts/${appId}/users/${userId}/work_logs`);
+            const q = query(logsCollection);
+            
+            onSnapshot(q, (snapshot) => {
+                logs = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if(data.startTime) {
+                       logs.push({ id: doc.id, ...data });
+                    }
+                });
+                logs.sort((a, b) => b.startTime.toMillis() - a.startTime.toMillis());
+                renderLogs();
+                updateSummary();
+                restoreTrackerState();
+            }, (error) => {
+                console.error("Error loading logs:", error);
+                showMessage("Failed to load your work logs.");
+            });
+        }
+        
+        function restoreTrackerState() {
+            const activeLog = logs.find(log => !log.endTime);
+            if (activeLog) {
+                currentLogId = activeLog.id;
+                workNameInput.value = activeLog.workName;
+                setTrackingState(true, activeLog.startTime.toDate());
+            } else {
+                setTrackingState(false);
+            }
+        }
+
+        // --- Core Logic ---
+        async function handleStart() {
+            const workName = workNameInput.value.trim();
+            if (!workName) {
+                showMessage("Please enter a name for the work before starting.");
+                return;
+            }
+            if (!userId) { showMessage("Not signed in. Cannot start timer."); return; }
+
+            try {
+                const logsCollection = collection(db, `artifacts/${appId}/users/${userId}/work_logs`);
+                const startTime = new Date();
+                const newLogRef = await addDoc(logsCollection, {
+                    workName: workName,
+                    startTime: startTime,
+                    endTime: null,
+                    duration: 0
+                });
+                currentLogId = newLogRef.id;
+                // UI update will happen via onSnapshot
+            } catch (error) {
+                console.error("Error starting timer:", error);
+                showMessage("There was an error starting the timer.");
+            }
+        }
+
+        async function handleEnd() {
+            if (!currentLogId) return;
+
+            try {
+                const logDocRef = doc(db, `artifacts/${appId}/users/${userId}/work_logs`, currentLogId);
+                const activeLog = logs.find(log => log.id === currentLogId);
+                const startTime = activeLog.startTime.toDate();
+                const endTime = new Date();
+                const duration = endTime.getTime() - startTime.getTime();
+
+                await setDoc(logDocRef, { endTime: endTime, duration: duration }, { merge: true });
+                currentLogId = null;
+                workNameInput.value = "";
+                // UI update will happen via onSnapshot
+            } catch (error) {
+                console.error("Error ending timer:", error);
+                showMessage("There was an error stopping the timer.");
+            }
+        }
+        
+        async function handleManualAdd() {
+            const workName = manualWorkNameInput.value.trim();
+            const date = manualDateInput.value;
+            const startTimeStr = manualStartTimeInput.value;
+            const endTimeStr = manualEndTimeInput.value;
+
+            if (!workName || !date || !startTimeStr || !endTimeStr) {
+                showMessage("Please fill out all fields for the manual entry.");
+                return;
+            }
+
+            const startTime = new Date(`${date}T${startTimeStr}`);
+            const endTime = new Date(`${date}T${endTimeStr}`);
+
+            if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+                showMessage("The date or time you entered is invalid.");
+                return;
+            }
+
+            if (endTime <= startTime) {
+                showMessage("End time must be after the start time.");
+                return;
+            }
+
+            const duration = endTime.getTime() - startTime.getTime();
+            if (!userId) { showMessage("You must be logged in to add an entry."); return; }
+
+            try {
+                const logsCollection = collection(db, `artifacts/${appId}/users/${userId}/work_logs`);
+                await addDoc(logsCollection, {
+                    workName: workName,
+                    startTime: startTime,
+                    endTime: endTime,
+                    duration: duration
+                });
+
+                manualWorkNameInput.value = '';
+                manualDateInput.value = '';
+                manualStartTimeInput.value = '';
+                manualEndTimeInput.value = '';
+
+            } catch (error) {
+                console.error("Error adding manual entry:", error);
+                showMessage("There was an error saving the manual entry.");
+            }
+        }
+
+        async function deleteLog(logId) {
+            const confirmed = await showConfirm(
+                'Delete Entry', 
+                'Are you sure you want to delete this log entry? This action cannot be undone.'
+            );
+            if (!confirmed) return;
+
+            try {
+                const logDocRef = doc(db, `artifacts/${appId}/users/${userId}/work_logs`, logId);
+                await deleteDoc(logDocRef);
+                // UI will update via onSnapshot
+            } catch (error) {
+                console.error("Error deleting log:", error);
+                showMessage("Could not delete the log entry.");
+            }
+        }
+
+        // --- UI Updates ---
+        function renderLogs() {
+            logTableBody.innerHTML = '';
+            if (logs.length === 0) {
+                 logTableBody.innerHTML = `<tr><td colspan="6" class="text-center px-6 py-4 text-gray-500">No work logs yet. Start the timer to begin!</td></tr>`;
+            }
+
+            logs.forEach(log => {
+                const tr = document.createElement('tr');
+                tr.className = 'bg-white border-b hover:bg-gray-50';
+                
+                const startTime = log.startTime.toDate();
+                const endTime = log.endTime ? log.endTime.toDate() : null;
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4">${startTime.toLocaleDateString()}</td>
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${log.workName}</th>
+                    <td class="px-6 py-4">${startTime.toLocaleTimeString()}</td>
+                    <td class="px-6 py-4">${endTime ? endTime.toLocaleTimeString() : '<span class="text-indigo-600 font-semibold">In Progress...</span>'}</td>
+                    <td class="px-6 py-4 timer-display">${endTime ? formatDuration(log.duration) : '-'}</td>
+                    <td class="px-6 py-4">
+                        <button data-id="${log.id}" class="delete-btn font-medium text-red-600 hover:underline">Delete</button>
+                    </td>
+                `;
+                logTableBody.appendChild(tr);
+            });
+        }
+        
+        function updateSummary() {
+            const totalMilliseconds = logs
+                .filter(log => log.duration > 0)
+                .reduce((acc, log) => acc + log.duration, 0);
+
+            const totalHours = totalMilliseconds / (1000 * 60 * 60);
+            const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
+            const totalEarnings = totalHours * hourlyRate;
+
+            totalDurationEl.textContent = formatDuration(totalMilliseconds);
+            totalEarningsEl.textContent = `€${totalEarnings.toFixed(2)}`;
+            
+            renderTableFooter(totalMilliseconds);
+        }
+
+        function renderTableFooter(totalMilliseconds) {
+            logTableFooter.innerHTML = '';
+            if (logs.length > 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td colspan="4" class="px-6 py-3 text-right">Total:</td>
+                    <td class="px-6 py-3 timer-display">${formatDuration(totalMilliseconds)}</td>
+                    <td class="px-6 py-3"></td>
+                `;
+                logTableFooter.appendChild(tr);
+            }
+        }
+
+        function setTrackingState(isTracking, startTime = null) {
+            startButton.disabled = isTracking;
+            endButton.disabled = !isTracking;
+            workNameInput.disabled = isTracking;
+            
+            if (isTracking) {
+                liveTimerEl.classList.remove('hidden');
+                clearInterval(liveTimerInterval);
+                liveTimerInterval = setInterval(() => {
+                    const elapsed = new Date().getTime() - startTime.getTime();
+                    liveTimerEl.textContent = formatDuration(elapsed);
+                }, 1000);
+            } else {
+                liveTimerEl.classList.add('hidden');
+                clearInterval(liveTimerInterval);
+                liveTimerInterval = null;
+                liveTimerEl.textContent = "00:00:00";
+            }
+        }
+
+        // --- Utility & Modal Functions ---
+        function formatDuration(ms) {
+            if (ms < 0) ms = 0;
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+        
+        function showMessage(message) {
+            modalMessageEl.textContent = message;
+            modal.classList.remove('hidden');
+        }
+        
+        function hideMessage() {
+            modal.classList.add('hidden');
+        }
+        
+        function showConfirm(title, message) {
+            confirmTitleEl.textContent = title;
+            confirmMessageEl.textContent = message;
+            confirmModal.classList.remove('hidden');
+            return new Promise((resolve) => {
+                confirmResolver = resolve;
+            });
+        }
+
+        function handleConfirm(decision) {
+            if (confirmResolver) {
+                confirmResolver(decision);
+            }
+            confirmResolver = null;
+            confirmModal.classList.add('hidden');
+        }
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', handleStart);
+        endButton.addEventListener('click', handleEnd);
+        manualSaveButton.addEventListener('click', handleManualAdd);
+        hourlyRateInput.addEventListener('input', updateSummary);
+        closeModalButton.addEventListener('click', hideMessage);
+        confirmOkButton.addEventListener('click', () => handleConfirm(true));
+        confirmCancelButton.addEventListener('click', () => handleConfirm(false));
+        
+        logTableBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const logId = e.target.getAttribute('data-id');
+                deleteLog(logId);
+            }
+        });
+
+        // --- App Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+           initializeFirebase();
+        });
+
+    </script>
+
+   <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function() { console.log('Service Worker Registered'); });
+      }
+    </script>
+</body>
+
+</html>
